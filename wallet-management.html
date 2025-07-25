@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wallet Management</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="wallet-styles.css" />
+</head>
+<body>
+
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" id="hamburgerMenu">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+  </div>
+
+  <!-- Sidebar Panel -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="toggle-switch">
+        <div class="toggle-circle"></div>
+      </div>
+      <div class="breadcrumb">
+        <span>Home</span> / <span>Wallet Management</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item">
+        <i class="icon">📊</i>
+        <span><a href="index.html">Dashboard</a></span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💸</i>
+        <span><a href="withdrawal-management.html">Withdrawal Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item active">
+        <i class="icon">💳</i>
+        <span><a href="wallet-management.html">Wallet Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏪</i>
+        <span><a href="main-market-management.html">Main Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🎰</i>
+        <span><a href="gali-disawar-management.html">Gali Disawar Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⭐</i>
+        <span><a href="starline-management.html">Starline Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏆</i>
+        <span><a href="bid-report-management.html">Bid Report Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">📢</i>
+        <span><a href="users-management.html">Users Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👤</i>
+        <span>Users Query</span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🖼️</i>
+        <span>Slider Images Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👨‍💼</i>
+        <span>Sub Admin Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⚙️</i>
+        <span>Settings Management</span>
+        <i class="arrow">›</i>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="container">
+
+    <header class="page-header">
+      <h1>💳 Wallet Management</h1>
+      <p>Manage pending add money requests</p>
+    </header>
+
+    <section class="stats-summary">
+      <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-info">
+          <div class="stat-number" id="pendingCount">0</div>
+          <div class="stat-label">Pending Requests</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+          <div class="stat-number" id="totalAmount">₹0</div>
+          <div class="stat-label">Total Amount</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <div class="stat-number" id="approvedAmount">₹0</div>
+          <div class="stat-label">Today's Approved</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wallet-requests">
+      <div class="section-header">
+        <h2>Pending Add Money Requests</h2>
+        <button class="refresh-btn" onclick="fetchWalletRequests()">🔄 Refresh</button>
+      </div>
+      
+      <div class="requests-container" id="requestsContainer">
+        <div class="loading">Loading add money requests...</div>
+      </div>
+    </section>
+
+  </div>
+
+  <script type="module" src="wallet-management.js"></script>
+</body>
+</html>

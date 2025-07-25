@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bid Report Management</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="bid-report-styles.css" />
+</head>
+<body>
+
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" id="hamburgerMenu">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+  </div>
+
+  <!-- Sidebar Panel -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="toggle-switch">
+        <div class="toggle-circle"></div>
+      </div>
+      <div class="breadcrumb">
+        <span>Home</span> / <span>Bid Report Management</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item">
+        <i class="icon">📊</i>
+        <span><a href="index.html">Dashboard</a></span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💸</i>
+        <span><a href="withdrawal-management.html">Withdrawal Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💳</i>
+        <span><a href="wallet-management.html">Wallet Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏪</i>
+        <span><a href="main-market-management.html">Main Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🎰</i>
+        <span><a href="gali-disawar-management.html">Gali Disawar Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⭐</i>
+        <span><a href="starline-management.html">Starline Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item active">
+        <i class="icon">🏆</i>
+        <span><a href="bid-report-management.html">Bid Report Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">📢</i>
+        <span><a href="users-management.html">Users Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👤</i>
+        <span>Users Query</span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🖼️</i>
+        <span>Slider Images Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👨‍💼</i>
+        <span>Sub Admin Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⚙️</i>
+        <span>Settings Management</span>
+        <i class="arrow">›</i>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="container">
+
+    <header class="page-header">
+      <h1>🏆 Bid Report Management</h1>
+      <p>View and manage all betting reports and statistics</p>
+    </header>
+
+    <!-- Stats Summary -->
+    <section class="stats-summary">
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+          <div class="stat-number" id="totalBids">0</div>
+          <div class="stat-label">Total Bids</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+          <div class="stat-number" id="totalBidAmount">₹0</div>
+          <div class="stat-label">Total Bid Amount</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-info">
+          <div class="stat-number" id="totalWinnings">₹0</div>
+          <div class="stat-label">Total Winnings</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📱</div>
+        <div class="stat-info">
+          <div class="stat-number" id="uniqueUsers">0</div>
+          <div class="stat-label">Unique Users</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section">
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="statusFilter">Status:</label>
+          <select id="statusFilter">
+            <option value="">All Status</option>
+            <option value="Win">Win</option>
+            <option value="Lose">Lose</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="gameTypeFilter">Game Type:</label>
+          <select id="gameTypeFilter">
+            <option value="">All Game Types</option>
+            <option value="Single Digit">Single Digit</option>
+            <option value="Jodi Digit">Jodi Digit</option>
+            <option value="Single Panna">Single Panna</option>
+            <option value="Double Panna">Double Panna</option>
+            <option value="Triple Panna">Triple Panna</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="dateFilter">Date:</label>
+          <input type="date" id="dateFilter">
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn" onclick="applyFilters()">🔍 Apply Filters</button>
+          <button class="clear-btn" onclick="clearFilters()">🗑️ Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bids Table Section -->
+    <section class="bids-section">
+      <div class="section-header">
+        <h2>All Bids Report</h2>
+        <div class="header-actions">
+          <button class="refresh-btn" onclick="fetchBids()">🔄 Refresh</button>
+          <button class="export-btn" onclick="exportBids()">📥 Export CSV</button>
+        </div>
+      </div>
+      
+      <div class="table-container">
+        <table class="bids-table" id="bidsTable">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>User Phone</th>
+              <th>Game</th>
+              <th>Game Type</th>
+              <th>Bid Number</th>
+              <th>Bid Amount</th>
+              <th>Session</th>
+              <th>Status</th>
+              <th>Winning Amount</th>
+            </tr>
+          </thead>
+          <tbody id="bidsTableBody">
+            <tr>
+              <td colspan="9" class="loading">Loading bids...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination">
+        <button class="page-btn" onclick="changePage('prev')" id="prevBtn">← Previous</button>
+        <span class="page-info" id="pageInfo">Page 1 of 1</span>
+        <button class="page-btn" onclick="changePage('next')" id="nextBtn">Next →</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Bid Details Modal -->
+  <div class="modal" id="bidDetailsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Bid Details</h3>
+        <span class="close" onclick="closeBidDetailsModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="bid-details-grid">
+          <div class="detail-item">
+            <label>User Phone:</label>
+            <span id="modalUserPhone"></span>
+          </div>
+          <div class="detail-item">
+            <label>Game:</label>
+            <span id="modalSelectedButton"></span>
+          </div>
+          <div class="detail-item">
+            <label>Game Type:</label>
+            <span id="modalGameType"></span>
+          </div>
+          <div class="detail-item">
+            <label>Bid Number:</label>
+            <span id="modalBidNumber"></span>
+          </div>
+          <div class="detail-item">
+            <label>Bid Amount:</label>
+            <span id="modalBidAmount"></span>
+          </div>
+          <div class="detail-item">
+            <label>Session Status:</label>
+            <span id="modalSessionStatus"></span>
+          </div>
+          <div class="detail-item">
+            <label>Status:</label>
+            <span id="modalStatus"></span>
+          </div>
+          <div class="detail-item">
+            <label>Winning Amount:</label>
+            <span id="modalWinningAmount"></span>
+          </div>
+          <div class="detail-item">
+            <label>Timestamp:</label>
+            <span id="modalTimestamp"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-close" onclick="closeBidDetailsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="bid-report-management.js"></script>
+</body>
+</html>

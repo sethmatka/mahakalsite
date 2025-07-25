@@ -1,0 +1,243 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, doc, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig } from './firebase-config.js';
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Global variables
+let withdrawalRequests = [];
+
+// Function to fetch pending withdrawal requests
+async function fetchWithdrawalRequests() {
+  try {
+    const requestsContainer = document.getElementById('requestsContainer');
+    requestsContainer.innerHTML = '<div class="loading">Loading withdrawal requests...</div>';
+
+    // Query withdrawal_requests collection for pending status
+    const withdrawalCollection = collection(db, "withdrawal_requests");
+    const q = query(
+      withdrawalCollection,
+      where("status", "==", "Pending"),
+      orderBy("timestamp", "desc")
+    );
+    
+    const querySnapshot = await getDocs(q);
+    withdrawalRequests = [];
+    
+    querySnapshot.forEach((doc) => {
+      withdrawalRequests.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    displayWithdrawalRequests();
+    updateStats();
+    
+    console.log("Fetched withdrawal requests:", withdrawalRequests);
+  } catch (error) {
+    console.error("Error fetching withdrawal requests:", error);
+    const requestsContainer = document.getElementById('requestsContainer');
+    requestsContainer.innerHTML = '<div class="loading">Error loading withdrawal requests</div>';
+  }
+}
+
+// Function to display withdrawal requests
+function displayWithdrawalRequests() {
+  const requestsContainer = document.getElementById('requestsContainer');
+  
+  if (withdrawalRequests.length === 0) {
+    requestsContainer.innerHTML = `
+      <div class="no-requests">
+        <div class="icon">📭</div>
+        <h3>No Pending Requests</h3>
+        <p>There are no pending withdrawal requests at the moment.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  let requestsHTML = '';
+  
+  withdrawalRequests.forEach((request) => {
+    const date = new Date(request.timestamp).toLocaleString();
+    
+    requestsHTML += `
+      <div class="request-card">
+        <div class="request-info">
+          <div class="request-header">
+            <div class="request-id">Request #${request.id.substring(0, 8)}</div>
+            <div class="request-amount">₹${request.amount.toLocaleString()}</div>
+          </div>
+          
+          <div class="request-details">
+            <div class="detail-item">
+              <div class="detail-label">User ID</div>
+              <div class="detail-value">${request.userId}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Type</div>
+              <div class="detail-value">${request.type}</div>
+            </div>
+             <div class="detail-item">
+              <div class="detail-label">UPI ID</div>
+              <div class="detail-value upi-id" onclick="copyUpiId('${request.upiId}', this)" title="Click to copy UPI ID">${request.upiId}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Date & Time</div>
+              <div class="detail-value">${date}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Status</div>
+              <div class="detail-value">
+                <span class="status-badge status-pending">${request.status}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="request-actions">
+          <button class="action-btn approve-btn" onclick="updateRequestStatus('${request.id}', 'Approved')">
+            ✅ Approve
+          </button>
+          <button class="action-btn reject-btn" onclick="updateRequestStatus('${request.id}', 'Rejected')">
+            ❌ Reject
+          </button>
+        </div>
+      </div>
+    `;
+  });
+  
+  requestsContainer.innerHTML = requestsHTML;
+}
+
+// Function to update request status
+async function updateRequestStatus(requestId, newStatus) {
+  try {
+    // Disable buttons to prevent multiple clicks
+    const buttons = document.querySelectorAll(`[onclick*="${requestId}"]`);
+    buttons.forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+    });
+
+    // Update the document in Firestore
+    const requestRef = doc(db, "withdrawal_requests", requestId);
+    await updateDoc(requestRef, {
+      status: newStatus,
+      updatedAt: new Date().getTime()
+    });
+    
+    // Show success message
+    alert(`Request ${newStatus.toLowerCase()} successfully!`);
+    
+    // Refresh the list
+    fetchWithdrawalRequests();
+    
+    console.log(`Request ${requestId} updated to ${newStatus}`);
+  } catch (error) {
+    console.error("Error updating request status:", error);
+    alert("Error updating request. Please try again.");
+    
+    // Re-enable buttons on error
+    const buttons = document.querySelectorAll(`[onclick*="${requestId}"]`);
+    buttons.forEach(btn => {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    });
+  }
+}
+
+// Function to update stats
+function updateStats() {
+  const pendingCount = withdrawalRequests.length;
+  const totalAmount = withdrawalRequests.reduce((sum, request) => sum + request.amount, 0);
+  
+  document.getElementById('pendingCount').textContent = pendingCount;
+  document.getElementById('totalAmount').textContent = `₹${totalAmount.toLocaleString()}`;
+}
+
+// Function to copy UPI ID to clipboard
+async function copyUpiId(upiId, element) {
+  try {
+    await navigator.clipboard.writeText(upiId);
+    
+    // Add copied class for visual feedback
+    element.classList.add('copied');
+    
+    // Show success message
+    const originalTitle = element.title;
+    element.title = 'Copied to clipboard!';
+    
+    // Remove copied class and restore title after animation
+    setTimeout(() => {
+      element.classList.remove('copied');
+      element.title = originalTitle;
+    }, 1500);
+    
+    console.log('UPI ID copied to clipboard:', upiId);
+  } catch (error) {
+    console.error('Failed to copy UPI ID:', error);
+    
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = upiId;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    // Show feedback
+    element.classList.add('copied');
+    element.title = 'Copied to clipboard!';
+    
+    setTimeout(() => {
+      element.classList.remove('copied');
+      element.title = 'Click to copy UPI ID';
+    }, 1500);
+  }
+}
+
+// Hamburger menu functionality
+function initializeHamburgerMenu() {
+  const hamburgerMenu = document.getElementById('hamburgerMenu');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  function toggleSidebar() {
+    hamburgerMenu.classList.toggle('active');
+    sidebar.classList.toggle('active');
+    sidebarOverlay.classList.toggle('active');
+  }
+
+  function closeSidebar() {
+    hamburgerMenu.classList.remove('active');
+    sidebar.classList.remove('active');
+    sidebarOverlay.classList.remove('active');
+  }
+
+  hamburgerMenu.addEventListener('click', toggleSidebar);
+  sidebarOverlay.addEventListener('click', closeSidebar);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeSidebar();
+    }
+  });
+}
+
+// Make functions globally available
+window.fetchWithdrawalRequests = fetchWithdrawalRequests;
+window.updateRequestStatus = updateRequestStatus;
+window.copyUpiId = copyUpiId;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+  initializeHamburgerMenu();
+  fetchWithdrawalRequests();
+  
+  // Auto-refresh every 5 minutes
+  setInterval(fetchWithdrawalRequests, 5 * 60 * 1000);
+});

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Users Management</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="users-management-styles.css" />
+</head>
+<body>
+
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" id="hamburgerMenu">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+  </div>
+
+  <!-- Sidebar Panel -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="toggle-switch">
+        <div class="toggle-circle"></div>
+      </div>
+      <div class="breadcrumb">
+        <span>Home</span> / <span>Users Management</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item">
+        <i class="icon">📊</i>
+        <span><a href="index.html">Dashboard</a></span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💸</i>
+        <span><a href="withdrawal-management.html">Withdrawal Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💳</i>
+        <span><a href="wallet-management.html">Wallet Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏪</i>
+        <span><a href="main-market-management.html">Main Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🎰</i>
+        <span><a href="gali-disawar-management.html">Gali Disawar Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⭐</i>
+        <span><a href="starline-management.html">Starline Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏆</i>
+        <span><a href="bid-report-management.html">Bid Report Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item active">
+        <i class="icon">📢</i>
+        <span><a href="users-management.html">Users Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👤</i>
+        <span>Users Query</span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🖼️</i>
+        <span>Slider Images Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👨‍💼</i>
+        <span>Sub Admin Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⚙️</i>
+        <span>Settings Management</span>
+        <i class="arrow">›</i>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="container">
+
+    <header class="page-header">
+      <h1>👥 Users Management</h1>
+      <p>Manage all registered users and their account details</p>
+    </header>
+
+    <!-- Stats Summary -->
+    <section class="stats-summary">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+          <div class="stat-number" id="totalUsers">0</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+          <div class="stat-number" id="totalBalance">₹0</div>
+          <div class="stat-label">Total Balance</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💳</div>
+        <div class="stat-info">
+          <div class="stat-number" id="avgBalance">₹0</div>
+          <div class="stat-label">Average Balance</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-info">
+          <div class="stat-number" id="activeUsers">0</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search and Filters Section -->
+    <section class="filters-section">
+      <div class="filters-container">
+        <div class="filter-group">
+          <label for="searchUser">Search User:</label>
+          <input type="text" id="searchUser" placeholder="Search by name or phone...">
+        </div>
+        <div class="filter-group">
+          <label for="balanceFilter">Balance Range:</label>
+          <select id="balanceFilter">
+            <option value="">All Users</option>
+            <option value="0">Zero Balance</option>
+            <option value="1-100">₹1 - ₹100</option>
+            <option value="101-500">₹101 - ₹500</option>
+            <option value="501-1000">₹501 - ₹1000</option>
+            <option value="1001-5000">₹1001 - ₹5000</option>
+            <option value="5000+">₹5000+</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="sortBy">Sort By:</label>
+          <select id="sortBy">
+            <option value="name">Name (A-Z)</option>
+            <option value="balance-high">Balance (High to Low)</option>
+            <option value="balance-low">Balance (Low to High)</option>
+            <option value="phone">Phone Number</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <button class="filter-btn" onclick="applyFilters()">🔍 Apply Filters</button>
+          <button class="clear-btn" onclick="clearFilters()">🗑️ Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Users Table Section -->
+    <section class="users-section">
+      <div class="section-header">
+        <h2>All Users</h2>
+        <div class="header-actions">
+          <button class="refresh-btn" onclick="fetchUsers()">🔄 Refresh</button>
+          <button class="export-btn" onclick="exportUsers()">📥 Export CSV</button>
+        </div>
+      </div>
+      
+      <div class="table-container">
+        <table class="users-table" id="usersTable">
+          <thead>
+            <tr>
+              <th>Sr. No.</th>
+              <th>Name</th>
+              <th>Phone Number</th>
+              <th>Current Balance</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr>
+              <td colspan="5" class="loading">Loading users...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination">
+        <button class="page-btn" onclick="changePage('prev')" id="prevBtn">← Previous</button>
+        <span class="page-info" id="pageInfo">Page 1 of 1</span>
+        <button class="page-btn" onclick="changePage('next')" id="nextBtn">Next →</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- User Details Modal -->
+  <div class="modal" id="userDetailsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>User Details</h3>
+        <span class="close" onclick="closeUserDetailsModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="user-details-grid">
+          <div class="detail-item">
+            <label>Full Name:</label>
+            <span id="modalUserName"></span>
+          </div>
+          <div class="detail-item">
+            <label>Phone Number:</label>
+            <span id="modalUserPhone" class="phone-number"></span>
+            <button class="copy-btn" onclick="copyPhoneNumber()" title="Copy Phone Number">📋</button>
+          </div>
+          <div class="detail-item">
+            <label>Current Balance:</label>
+            <span id="modalUserBalance" class="balance-amount"></span>
+          </div>
+          <div class="detail-item">
+            <label>User ID:</label>
+            <span id="modalUserId"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-close" onclick="closeUserDetailsModal()">Close</button>
+        <button class="btn-view-bids" onclick="viewUserBids()">View Bids</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Balance Update Modal -->
+  <div class="modal" id="balanceUpdateModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Update User Balance</h3>
+        <span class="close" onclick="closeBalanceUpdateModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="balance-update-form">
+          <div class="form-group">
+            <label>User Name:</label>
+            <div class="field-value" id="updateUserName"></div>
+          </div>
+          <div class="form-group">
+            <label>Phone Number:</label>
+            <div class="field-value" id="updateUserPhone"></div>
+          </div>
+          <div class="form-group">
+            <label>Current Balance:</label>
+            <div class="field-value balance-amount" id="updateCurrentBalance"></div>
+          </div>
+          <div class="form-group">
+            <label for="balanceAction">Action:</label>
+            <select id="balanceAction">
+              <option value="add">Add Money</option>
+              <option value="deduct">Deduct Money</option>
+              <option value="set">Set Balance</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="balanceAmount">Amount:</label>
+            <input type="number" id="balanceAmount" placeholder="Enter amount" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label for="balanceReason">Reason:</label>
+            <textarea id="balanceReason" placeholder="Enter reason for balance update..." rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeBalanceUpdateModal()">Cancel</button>
+        <button class="btn-update-balance" onclick="updateUserBalance()">Update Balance</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="users-management.js"></script>
+</body>
+</html>

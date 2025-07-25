@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" id="hamburgerMenu">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+  </div>
+
+  <!-- Sidebar Panel -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="toggle-switch">
+        <div class="toggle-circle"></div>
+      </div>
+      <div class="breadcrumb">
+        <span>Home</span> / <span>Dashboard</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item active">
+        <i class="icon">📊</i>
+        <span><a href="index.html">Dashboard</a></span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💸</i>
+        <span><a href="withdrawal-management.html">Withdrawal Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💳</i>
+        <span><a href="wallet-management.html">Wallet Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏪</i>
+        <span><a href="main-market-management.html">Main Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🎰</i>
+        <span><a href="gali-disawar-management.html">Gali Disawar Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⭐</i>
+        <span><a href="starline-management.html">Starline Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏆</i>
+        <span><a href="bid-report-management.html">Bid Report Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">📢</i>
+        <span><a href="users-management.html">Users Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👤</i>
+        <span>Users Query</span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🖼️</i>
+        <span>Slider Images Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👨‍💼</i>
+        <span>Sub Admin Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⚙️</i>
+        <span>Settings Management</span>
+        <i class="arrow">›</i>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="container">
+
+    <header class="welcome-box">
+      <h2>Welcome Back!</h2>
+      <p>Admin Dashboard</p>
+      <div class="status-cards">
+        <div class="card pink">Access<br/>DM 2023</div>
+        <div class="card red">Total Users<br/><span class="user-count"></span></div>
+      </div>
+    </header>
+
+    <section class="market-section">
+      <h3>Market Bid Details</h3>
+      <label>Game Name:
+        <select id="gameName">
+          <option>Select Game Name</option>
+        </select>
+      </label>
+      <p class="amount-display">Market Amount: <strong>N/A</strong></p>
+    </section>
+
+    <section class="stats-cards">
+      <div class="card blue">👥 Users<br/><strong class="user-count"></strong></div>
+      <div class="card pink">🎮 Games<br/><strong>50</strong></div>
+      <div class="card yellow">💰 Bid Amount<br/><strong class="bid-amount"></strong></div>
+    </section>
+
+    <section class="bids-grid">
+      <h3>Total Bids</h3>
+      <div class="bid-row">
+        <div class="bid-card">Total Bid 13<br/>320</div>
+        <div class="bid-card">Total Bid 14<br/>240</div>
+        <div class="bid-card">Total Bid 15<br/>350</div>
+      </div>
+      <div class="bid-row">
+        <div class="bid-card">Total Bid 16<br/>170</div>
+        <div class="bid-card">Total Bid 17<br/>330</div>
+        <div class="bid-card">Total Bid 18<br/>240</div>
+      </div>
+      <!-- Add more cards as needed -->
+    </section>
+     <!-- UPI Configuration Section -->
+    <section class="upi-section">
+      <div class="upi-header">
+        <h3>💳 UPI Configuration</h3>
+        <button class="edit-upi-btn" id="editUpiBtn">✏️ Edit UPI ID</button>
+      </div>
+      <div class="upi-content">
+        <div class="upi-display">
+          <div class="upi-label">Current UPI ID:</div>
+          <div class="upi-value" id="currentUpiId">Loading...</div>
+          <button class="copy-upi-btn" id="copyUpiBtn" title="Copy UPI ID">📋 Copy</button>
+        </div>
+        <div class="upi-status" id="upiStatus">
+          <span class="status-indicator"></span>
+          <span class="status-text">UPI ID Active</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- WhatsApp Configuration Section -->
+    <section class="whatsapp-section">
+      <div class="whatsapp-header">
+        <h3>📱 WhatsApp Configuration</h3>
+        <button class="edit-whatsapp-btn" id="editWhatsAppBtn">✏️ Edit WhatsApp Number</button>
+      </div>
+      <div class="whatsapp-content">
+        <div class="whatsapp-display">
+          <div class="whatsapp-label">Current WhatsApp Number:</div>
+          <div class="whatsapp-value" id="currentWhatsAppNumber">Loading...</div>
+          <button class="copy-whatsapp-btn" id="copyWhatsAppBtn" title="Copy WhatsApp Number">📋 Copy</button>
+        </div>
+        <div class="whatsapp-status" id="whatsappStatus">
+          <span class="status-indicator"></span>
+          <span class="status-text">WhatsApp Number Active</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- UPI Update Modal -->
+  <div id="upiModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Update UPI ID</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="newUpiId">New UPI ID:</label>
+          <input type="text" id="newUpiId" placeholder="Enter new UPI ID (e.g., username@paytm)" class="form-input">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelUpiBtn" class="btn-secondary">Cancel</button>
+        <button id="updateUpiBtn" class="btn-primary">Update UPI ID</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WhatsApp Update Modal -->
+  <div id="whatsappModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Update WhatsApp Number</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="newWhatsAppNumber">New WhatsApp Number:</label>
+          <input type="text" id="newWhatsAppNumber" placeholder="Enter WhatsApp number (e.g., +91xxxxxxxxxx)" class="form-input">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelWhatsAppBtn" class="btn-secondary">Cancel</button>
+        <button id="updateWhatsAppBtn" class="btn-primary">Update WhatsApp Number</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

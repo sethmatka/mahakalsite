@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gali Disawar Market Management</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="gali-disawar-styles.css" />
+</head>
+<body>
+
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" id="hamburgerMenu">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+  </div>
+
+  <!-- Sidebar Panel -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="toggle-switch">
+        <div class="toggle-circle"></div>
+      </div>
+      <div class="breadcrumb">
+        <span>Home</span> / <span>Gali Disawar Market Management</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item">
+        <i class="icon">📊</i>
+        <span><a href="index.html">Dashboard</a></span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💸</i>
+        <span><a href="withdrawal-management.html">Withdrawal Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💳</i>
+        <span><a href="wallet-management.html">Wallet Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏪</i>
+        <span><a href="main-market-management.html">Main Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item active">
+        <i class="icon">🎰</i>
+        <span><a href="gali-disawar-management.html">Gali Disawar Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⭐</i>
+        <span><a href="starline-management.html">Starline Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏆</i>
+        <span><a href="bid-report-management.html">Bid Report Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">📢</i>
+        <span><a href="users-management.html">Users Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👤</i>
+        <span>Users Query</span>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🖼️</i>
+        <span>Slider Images Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">👨‍💼</i>
+        <span>Sub Admin Management</span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⚙️</i>
+        <span>Settings Management</span>
+        <i class="arrow">›</i>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="container">
+
+    <header class="page-header">
+      <h1>🎰 Gali Disawar Market Management</h1>
+      <p>Manage Gali Disawar market numbers and timings</p>
+    </header>
+
+    <section class="stats-summary">
+      <div class="stat-card">
+        <div class="stat-icon">🎲</div>
+        <div class="stat-info">
+          <div class="stat-number" id="totalMarkets">0</div>
+          <div class="stat-label">Total Markets</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🕐</div>
+        <div class="stat-info">
+          <div class="stat-number" id="activeMarkets">0</div>
+          <div class="stat-label">Active Markets</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏰</div>
+        <div class="stat-info">
+          <div class="stat-number" id="closedMarkets">0</div>
+          <div class="stat-label">Closed Markets</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Section -->
+    <section class="search-section">
+      <div class="search-container">
+        <div class="search-group">
+          <label for="marketSearch">Search Market:</label>
+          <input type="text" id="marketSearch" placeholder="Search by market name..." onkeyup="searchMarkets()">
+        </div>
+        <div class="search-actions">
+          <button class="clear-search-btn" onclick="clearSearch()">🗑️ Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="markets-section">
+      <div class="section-header">
+        <h2>Gali Disawar Markets</h2>
+        <button class="refresh-btn" onclick="fetchGaliDisawarMarkets()">🔄 Refresh</button>
+      </div>
+      
+      <div class="markets-container" id="marketsContainer">
+        <div class="loading">Loading Gali Disawar markets...</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Update Number Modal -->
+  <div class="modal" id="updateModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Update Market Number</h3>
+        <span class="close" onclick="closeUpdateModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="market-info">
+          <h4 id="modalMarketName"></h4>
+          <p>Current Number: <span id="modalCurrentNumber"></span></p>
+        </div>
+        <div class="input-group">
+          <label for="newNumber">New Number:</label>
+          <input type="text" id="newNumber" placeholder="Enter new number">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeUpdateModal()">Cancel</button>
+        <button class="btn-update" onclick="updateMarketNumber()">Update Number</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="gali-disawar-management.js"></script>
+</body>
+</html>
