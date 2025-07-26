@@ -51,12 +51,10 @@ async function fetchUsers() {
 function updateStats() {
   const totalUsers = filteredUsers.length;
   const totalBalance = filteredUsers.reduce((sum, user) => sum + user.balance, 0);
-  const avgBalance = totalUsers > 0 ? totalBalance / totalUsers : 0;
   const activeUsers = filteredUsers.filter(user => user.balance > 0).length;
 
   document.getElementById('totalUsers').textContent = totalUsers.toLocaleString();
   document.getElementById('totalBalance').textContent = `₹${totalBalance.toLocaleString()}`;
-  document.getElementById('avgBalance').textContent = `₹${Math.round(avgBalance).toLocaleString()}`;
   document.getElementById('activeUsers').textContent = activeUsers;
 }
 

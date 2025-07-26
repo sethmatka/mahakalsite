@@ -753,9 +753,58 @@ window.addEventListener("DOMContentLoaded", () => {
     sidebarOverlay.classList.remove('active');
   }
 
+  // Enhanced navigation click effects
+  function addNavClickEffects() {
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+      // Add click ripple effect
+      item.addEventListener('click', function(e) {
+        // Create ripple element
+        const ripple = document.createElement('div');
+        ripple.className = 'nav-ripple';
+        
+        // Calculate position
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        
+        this.appendChild(ripple);
+        
+        // Remove ripple after animation
+        setTimeout(() => {
+          if (ripple.parentNode) {
+            ripple.parentNode.removeChild(ripple);
+          }
+        }, 600);
+        
+        // Add click animation class
+        this.classList.add('nav-clicked');
+        setTimeout(() => {
+          this.classList.remove('nav-clicked');
+        }, 200);
+      });
+      
+      // Add hover sound effect (visual feedback)
+      item.addEventListener('mouseenter', function() {
+        this.style.filter = 'brightness(1.1)';
+      });
+      
+      item.addEventListener('mouseleave', function() {
+        this.style.filter = 'brightness(1)';
+      });
+    });
+  }
+
   // Event listeners
   hamburgerMenu.addEventListener('click', toggleSidebar);
   sidebarOverlay.addEventListener('click', closeSidebar);
+
+  // Initialize enhanced navigation effects
+  addNavClickEffects();
 
   // Close sidebar on escape key
   document.addEventListener('keydown', function(e) {

@@ -18,11 +18,8 @@
   <!-- Sidebar Panel -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <div class="toggle-switch">
-        <div class="toggle-circle"></div>
-      </div>
       <div class="breadcrumb">
-        <span>Home</span> / <span>Dashboard</span>
+        <span>Dashboard</span>
       </div>
     </div>
     
@@ -67,23 +64,8 @@
         <i class="arrow">›</i>
       </div>
       <div class="nav-item">
-        <i class="icon">👤</i>
-        <span>Users Query</span>
-      </div>
-      <div class="nav-item">
-        <i class="icon">🖼️</i>
-        <span>Slider Images Management</span>
-        <i class="arrow">›</i>
-      </div>
-      <div class="nav-item">
-        <i class="icon">👨‍💼</i>
-        <span>Sub Admin Management</span>
-        <i class="arrow">›</i>
-      </div>
-      <div class="nav-item">
-        <i class="icon">⚙️</i>
-        <span>Settings Management</span>
-        <i class="arrow">›</i>
+        <i class="icon">�</i>
+        <span>Logout</span>
       </div>
     </nav>
   </div>
@@ -94,11 +76,19 @@
   <div class="container">
 
     <header class="welcome-box">
-      <h2>Welcome Back!</h2>
-      <p>Admin Dashboard</p>
+      <div class="header-top">
+        <div class="welcome-text">
+          <h2>Welcome Back!</h2>
+          <p>Mahakal Admin Dashboard</p>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Logout">
+          <i class="logout-icon">⛔</i>
+          <span>Logout</span>
+        </button>
+      </div>
       <div class="status-cards">
-        <div class="card pink">Access<br/>DM 2023</div>
-        <div class="card red">Total Users<br/><span class="user-count"></span></div>
+        <div class="card pink">Access<br/>DM 2025</div>
+        <div class="card red clickable-card" onclick="window.location.href='users-management.html'">Total Users<br/><span class="user-count"></span></div>
       </div>
     </header>
 
@@ -113,13 +103,13 @@
     </section>
 
     <section class="stats-cards">
-      <div class="card blue">👥 Users<br/><strong class="user-count"></strong></div>
-      <div class="card pink">🎮 Games<br/><strong>50</strong></div>
-      <div class="card yellow">💰 Bid Amount<br/><strong class="bid-amount"></strong></div>
+      <div class="card blue clickable-card" onclick="window.location.href='users-management.html'">👥 Users<br/><strong class="user-count"></strong></div>
+      <div class="card pink clickable-card" onclick="window.location.href='main-market-management.html'">🎮 Games<br/><strong>50</strong></div>
+      <div class="card yellow clickable-card" onclick="window.location.href='bid-report-management.html'">💰 Bid Amount<br/><strong class="bid-amount"></strong></div>
     </section>
 
     <section class="bids-grid">
-      <h3>Total Bids</h3>
+      <h3>Total Bids for Each Ank</h3>
       <div class="bid-row">
         <div class="bid-card">Total Bid 13<br/>320</div>
         <div class="bid-card">Total Bid 14<br/>240</div>
@@ -132,6 +122,7 @@
       </div>
       <!-- Add more cards as needed -->
     </section>
+
      <!-- UPI Configuration Section -->
     <section class="upi-section">
       <div class="upi-header">
@@ -209,6 +200,7 @@
     </div>
   </div>
 
+  <script src="auth.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

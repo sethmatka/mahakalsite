@@ -23,7 +23,7 @@
         <div class="toggle-circle"></div>
       </div>
       <div class="breadcrumb">
-        <span>Home</span> / <span>Users Management</span>
+        <span>Dashboard</span> / <span>Users Management</span>
       </div>
     </div>
     
@@ -69,22 +69,7 @@
       </div>
       <div class="nav-item">
         <i class="icon">👤</i>
-        <span>Users Query</span>
-      </div>
-      <div class="nav-item">
-        <i class="icon">🖼️</i>
-        <span>Slider Images Management</span>
-        <i class="arrow">›</i>
-      </div>
-      <div class="nav-item">
-        <i class="icon">👨‍💼</i>
-        <span>Sub Admin Management</span>
-        <i class="arrow">›</i>
-      </div>
-      <div class="nav-item">
-        <i class="icon">⚙️</i>
-        <span>Settings Management</span>
-        <i class="arrow">›</i>
+        <span>Logout</span>
       </div>
     </nav>
   </div>
@@ -101,7 +86,7 @@
 
     <!-- Stats Summary -->
     <section class="stats-summary">
-      <div class="stat-card">
+      <div class="stat-card" onclick="document.querySelector('.users-section').scrollIntoView({behavior: 'smooth'})" style="cursor: pointer;">
         <div class="stat-icon">👥</div>
         <div class="stat-info">
           <div class="stat-number" id="totalUsers">0</div>
@@ -113,13 +98,6 @@
         <div class="stat-info">
           <div class="stat-number" id="totalBalance">₹0</div>
           <div class="stat-label">Total Balance</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">💳</div>
-        <div class="stat-info">
-          <div class="stat-number" id="avgBalance">₹0</div>
-          <div class="stat-label">Average Balance</div>
         </div>
       </div>
       <div class="stat-card">
@@ -286,6 +264,7 @@
     </div>
   </div>
 
+  <script src="auth.js"></script>
   <script type="module" src="users-management.js"></script>
 </body>
 </html>
