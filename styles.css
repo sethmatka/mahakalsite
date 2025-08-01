@@ -422,6 +422,20 @@ body {
   flex-wrap: wrap;
 }
 
+.request-cards {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.request-cards .card {
+  position: relative;
+  flex: 0 1 300px;
+  max-width: 300px;
+}
+
 .card, .bid-card {
   background: white;
   padding: 15px;
@@ -447,6 +461,49 @@ body {
 
 .card.blue { background: #d1e7ff; }
 .card.yellow { background: #fff3cd; }
+.card.green { background: #d4edda; }
+.card.orange { background: #fde8d5; }
+
+/* Notification Badge Styles */
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  animation: pulse 2s infinite;
+}
+
+.notification-badge.add-money-badge {
+  background: #28a745;
+}
+
+.notification-badge.withdrawal-badge {
+  background: #fd7e14;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 
 /* Clickable Card Enhancements */
 .clickable-card {

@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, query, where, runTransaction, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from './firebase-config.js';
 
 // Initialize Firebase
@@ -214,6 +214,13 @@ async function updateMarketNumber() {
       number: newNumber,
     });
     
+    // Check winning bids after updating the number
+    await checkWinningBids(currentUpdateMarket.name, newNumber);
+    console.log(`Market ${currentUpdateMarket.name} updated to number ${newNumber}`);
+    
+    // Store daily results to Firestore
+    await storeDailyResultsToFirestoreMain();
+    
     // Show success message
     alert(`Market number updated successfully to ${newNumber}!`);
     
@@ -223,6 +230,267 @@ async function updateMarketNumber() {
     
     console.log(`Market ${currentUpdateMarket.id} updated to number ${newNumber}`);
   } catch (error) {
+    
+    const updateBtn = document.querySelector('.modal-footer .btn-update');
+    updateBtn.disabled = false;
+    updateBtn.textContent = 'Update Number';
+  }
+}
+
+// Function to check winning bids after number update
+async function checkWinningBids(buttonName, resultNumber) {
+  console.log(`🔄 Checking for winning bids for button: ${buttonName}, result: ${resultNumber}`);
+  
+  try {
+    // Fetch all pending bids for this button
+    const bidsQuery = query(
+      collection(db, "bids"),
+      where("selectedButton", "==", buttonName),
+      where("status", "==", "Pending")
+    );
+    
+    const bidsSnapshot = await getDocs(bidsQuery);
+    
+    if (bidsSnapshot.empty) {
+      console.log("No pending bids found for this button");
+      return;
+    }
+    
+    // Process each bid
+    for (const bidDoc of bidsSnapshot.docs) {
+      const bidData = bidDoc.data();
+      const bidId = bidDoc.id;
+      
+      const bidNumber = bidData.bidNumber || "";
+      const bidAmount = bidData.bidAmount || 0;
+      const userPhone = bidData.userPhone || "";
+      const gameType = bidData.gameType || "";
+      const sessionStatus = bidData.sessionStatus || "Open"; // Open or Close
+      const secondNumber = bidData.secondNumber || "";
+      
+      console.log(`Processing bid: ${bidId}, gameType: ${gameType}, bidNumber: ${bidNumber}`);
+      
+      // Parse result number
+      if (!resultNumber || resultNumber === "N/A") continue;
+      
+      const parts = resultNumber.split("-");
+      
+      let openHalf = "";
+      let closeHalf = "";
+      let singleDigit = "";
+      let midDigit = "";
+      let isCloseResultAvailable = false;
+      
+      switch (parts.length) {
+        case 2: // Only Open result is available (XXX-X)
+          openHalf = parts[0];
+          singleDigit = parts[1];
+          break;
+        case 3: // Full result is available (XXX-XX-XXX)
+          openHalf = parts[0];
+          singleDigit = parts[1];
+          midDigit = parts[1];
+          closeHalf = parts[2];
+          isCloseResultAvailable = true;
+          break;
+        default:
+          continue; // Unexpected format, skip
+      }
+      
+      // Skip if bid's session doesn't match available session
+      if ((sessionStatus === "Close" && !isCloseResultAvailable) ||
+          (sessionStatus === "Open" && isCloseResultAvailable)) {
+        continue;
+      }
+      
+      let winningAmount = 0;
+      let isWinner = false;
+      
+      // Check winning conditions based on game type
+      switch (gameType) {
+        case "Single Digit":
+          const digitToMatch = sessionStatus === "Open" ? singleDigit : singleDigit.slice(-1);
+          console.log(`Single digit check: ${bidNumber} vs ${digitToMatch}`);
+          if (bidNumber === digitToMatch) {
+            winningAmount = bidAmount * 10;
+            isWinner = true;
+          }
+          break;
+          
+        case "Double Digit":
+          if (sessionStatus === "Close" && midDigit.length === 2) {
+            console.log(`Double digit check: ${bidNumber} vs ${midDigit}`);
+            if (bidNumber === midDigit) {
+              winningAmount = bidAmount * 100;
+              isWinner = true;
+            }
+          }
+          break;
+          
+        case "Single Panna":
+          const singlePanna = sessionStatus === "Open" ? openHalf : closeHalf;
+          console.log(`Single panna check: ${bidNumber} vs ${singlePanna}`);
+          if (bidNumber === singlePanna && isValidSinglePanna(singlePanna)) {
+            winningAmount = bidAmount * 160;
+            isWinner = true;
+          }
+          break;
+          
+        case "Double Panna":
+          const doublePanna = sessionStatus === "Open" ? openHalf : closeHalf;
+          console.log(`Double panna check: ${bidNumber} vs ${doublePanna}`);
+          if (bidNumber === doublePanna && isValidDoublePanna(doublePanna)) {
+            winningAmount = bidAmount * 320;
+            isWinner = true;
+          }
+          break;
+          
+        case "Triple Panna":
+          const triplePanna = sessionStatus === "Open" ? openHalf : closeHalf;
+          console.log(`Triple panna check: ${bidNumber} vs ${triplePanna}`);
+          if (bidNumber === triplePanna && isValidTriplePanna(triplePanna)) {
+            winningAmount = bidAmount * 700;
+            isWinner = true;
+          }
+          break;
+          
+        case "Half Sangam":
+          const digit = bidNumber;
+          const panna = secondNumber;
+          console.log(`Half sangam check: digit ${digit}, panna ${panna}`);
+          
+          if (sessionStatus === "Open" && digit === singleDigit && panna === openHalf) {
+            winningAmount = bidAmount * 1000;
+            isWinner = true;
+          } else if (sessionStatus === "Close" && digit === singleDigit.slice(-1) && panna === closeHalf) {
+            winningAmount = bidAmount * 1000;
+            isWinner = true;
+          }
+          break;
+          
+        case "Full Sangam":
+          if (sessionStatus === "Close") {
+            const panna1 = bidNumber;
+            const panna2 = secondNumber;
+            
+            console.log(`Full sangam check: ${panna1} & ${panna2} vs ${openHalf} & ${closeHalf}`);
+            
+            if (openHalf === panna1 && closeHalf === panna2) {
+              winningAmount = bidAmount * 1000;
+              isWinner = true;
+              console.log(`🎯 Full Sangam Winner! Amount: ${winningAmount}`);
+            }
+          }
+          break;
+      }
+      
+      // Update bid status and user balance if winner
+      if (isWinner) {
+        console.log(`🎉 Winner found: ${bidId}, Amount: ${winningAmount}`);
+        await addWinningAmountToBalance(bidId, userPhone, winningAmount);
+      } else {
+        // Update bid status to "Lose"
+        await updateDoc(doc(db, "bids", bidId), {
+          status: "Lose"
+        });
+        console.log(`❌ Bid ${bidId} marked as lose`);
+      }
+    }
+    
+    console.log("✅ Winning bid check completed");
+    
+  } catch (error) {
+    console.error("❌ Error checking winning bids:", error);
+  }
+}
+
+// Function to add winning amount to user balance
+async function addWinningAmountToBalance(bidId, userPhone, winningAmount) {
+  try {
+    const userRef = doc(db, "users", userPhone);
+    const bidRef = doc(db, "bids", bidId);
+
+    await runTransaction(db, async (transaction) => {
+      const userSnapshot = await transaction.get(userRef);
+      const currentBalance = userSnapshot.data()?.balance || 0;
+      const newBalance = currentBalance + winningAmount;
+
+      transaction.update(userRef, { balance: newBalance });
+      transaction.update(bidRef, { 
+        winningAmount: winningAmount,
+        status: "Win"
+      });
+    });
+
+    console.log(`✅ Winning balance updated for ${userPhone}: +${winningAmount}`);
+    
+  } catch (error) {
+    console.error("❌ Error updating balance:", error);
+  }
+}
+
+// Validation functions for different panna types
+function isValidSinglePanna(number) {
+  return number.length === 3 && new Set(number).size === 3;
+}
+
+function isValidDoublePanna(number) {
+  if (number.length !== 3) return false;
+  const counts = {};
+  for (let char of number) {
+    counts[char] = (counts[char] || 0) + 1;
+  }
+  const values = Object.values(counts);
+  return values.includes(2) && values.includes(1);
+}
+
+function isValidTriplePanna(number) {
+  return number.length === 3 && number[0] === number[1] && number[1] === number[2];
+}
+
+// Function to store daily results to Firestore for Main Markets
+async function storeDailyResultsToFirestoreMain() {
+  console.log("📦 Starting daily results storage for Main Markets...");
+  
+  try {
+    // Get current date in dd-MM-yyyy format
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    const dateString = `${day}-${month}-${year}`;
+    
+    // Fetch all documents from buttons collection
+    const buttonsCollection = collection(db, "buttons");
+    const querySnapshot = await getDocs(buttonsCollection);
+    
+    const resultMap = {};
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const name = data.name || doc.id; // fallback to doc ID if name is missing
+      const number = data.number;
+      
+      if (number && number !== "N/A" && number !== undefined) {
+        resultMap[name] = number;
+      }
+    });
+    
+    console.log(`📦 Final resultMap for ${dateString}:`, resultMap);
+    
+    if (Object.keys(resultMap).length === 0) {
+      console.warn("⚠️ No button data to upload. Check Firestore 'buttons' collection.");
+      return;
+    }
+    
+    // Store results to dailyResults collection - this will completely replace the document
+    const dailyResultDoc = doc(db, "dailyResults", dateString);
+    await setDoc(dailyResultDoc, resultMap, { merge: false });
+    
+    console.log(`✅ Main Market results saved for ${dateString}`);
+    
+  } catch (error) {
+    console.error("❌ Failed to save daily Main Market results:", error);
   }
 }
 

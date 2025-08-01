@@ -552,6 +552,74 @@ async function updateData() {
   }
 }
 
+// Function to fetch pending add money requests count
+async function fetchAddMoneyRequestsCount() {
+  try {
+    const addMoneyQuery = query(
+      collection(db, "add_money_requests"),
+      where("status", "==", "Pending")
+    );
+    const snapshot = await getCountFromServer(addMoneyQuery);
+    const count = snapshot.data().count;
+    
+    // Update the add money count display
+    const addMoneyCountElement = document.querySelector('.add-money-count');
+    if (addMoneyCountElement) {
+      addMoneyCountElement.textContent = count;
+    }
+    
+    // Update the notification badge
+    const addMoneyBadge = document.querySelector('.add-money-badge');
+    if (addMoneyBadge) {
+      addMoneyBadge.textContent = count;
+      addMoneyBadge.style.display = count > 0 ? 'flex' : 'none';
+    }
+    
+    console.log("Pending add money requests:", count);
+    return count;
+  } catch (error) {
+    console.error("Error fetching add money requests count:", error);
+    const addMoneyCountElement = document.querySelector('.add-money-count');
+    if (addMoneyCountElement) {
+      addMoneyCountElement.textContent = "Error";
+    }
+  }
+}
+
+// Function to fetch pending withdrawal requests count
+async function fetchWithdrawalRequestsCount() {
+  try {
+    const withdrawalQuery = query(
+      collection(db, "withdrawal_requests"),
+      where("status", "==", "Pending")
+    );
+    const snapshot = await getCountFromServer(withdrawalQuery);
+    const count = snapshot.data().count;
+    
+    // Update the withdrawal count display
+    const withdrawalCountElement = document.querySelector('.withdrawal-count');
+    if (withdrawalCountElement) {
+      withdrawalCountElement.textContent = count;
+    }
+    
+    // Update the notification badge
+    const withdrawalBadge = document.querySelector('.withdrawal-badge');
+    if (withdrawalBadge) {
+      withdrawalBadge.textContent = count;
+      withdrawalBadge.style.display = count > 0 ? 'flex' : 'none';
+    }
+    
+    console.log("Pending withdrawal requests:", count);
+    return count;
+  } catch (error) {
+    console.error("Error fetching withdrawal requests count:", error);
+    const withdrawalCountElement = document.querySelector('.withdrawal-count');
+    if (withdrawalCountElement) {
+      withdrawalCountElement.textContent = "Error";
+    }
+  }
+}
+
 // Add event listener on page load
 window.addEventListener("DOMContentLoaded", () => {
   // Fetch total users when page loads
@@ -559,6 +627,10 @@ window.addEventListener("DOMContentLoaded", () => {
   
   // Fetch total bid amount when page loads
   fetchTotalBidAmount();
+  
+  // Fetch add money and withdrawal requests counts
+  fetchAddMoneyRequestsCount();
+  fetchWithdrawalRequestsCount();
   
   // Fetch game names when page loads
   fetchGameNames();

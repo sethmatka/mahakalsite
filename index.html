@@ -64,8 +64,14 @@
         <i class="arrow">›</i>
       </div>
       <div class="nav-item">
-        <i class="icon">�</i>
+        <i class="icon">📋</i>
+        <span><a href="notice-management.html">Notice Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item" onclick="logout()">
+        <i class="icon">🚪</i>
         <span>Logout</span>
+        <i class="arrow">›</i>
       </div>
     </nav>
   </div>
@@ -106,6 +112,17 @@
       <div class="card blue clickable-card" onclick="window.location.href='users-management.html'">👥 Users<br/><strong class="user-count"></strong></div>
       <div class="card pink clickable-card" onclick="window.location.href='main-market-management.html'">🎮 Games<br/><strong>50</strong></div>
       <div class="card yellow clickable-card" onclick="window.location.href='bid-report-management.html'">💰 Bid Amount<br/><strong class="bid-amount"></strong></div>
+    </section>
+
+    <section class="request-cards">
+      <div class="card green clickable-card" onclick="window.location.href='wallet-management.html'">
+        <div class="notification-badge add-money-badge">0</div>
+        💳 Add Money Requests<br/><strong class="add-money-count">0</strong>
+      </div>
+      <div class="card orange clickable-card" onclick="window.location.href='withdrawal-management.html'">
+        <div class="notification-badge withdrawal-badge">0</div>
+        💸 Withdrawal Requests<br/><strong class="withdrawal-count">0</strong>
+      </div>
     </section>
 
     <section class="bids-grid">

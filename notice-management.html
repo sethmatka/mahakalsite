@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notice Management - Mahakal Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .notice-container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+
+    .notice-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .notice-header h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .notice-header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 16px;
+    }
+
+    .notice-form-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 30px;
+    }
+
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .form-section h3 {
+      color: #2c3e50;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-label {
+      display: block;
+      color: #2c3e50;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .notice-textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 15px;
+      border: 2px solid #e1e8ed;
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: inherit;
+      resize: vertical;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+
+    .notice-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: white;
+    }
+
+    .char-counter {
+      text-align: right;
+      color: #7f8c8d;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .char-counter.warning {
+      color: #f39c12;
+    }
+
+    .char-counter.danger {
+      color: #e74c3c;
+    }
+
+    .notice-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .notice-btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 150px;
+      justify-content: center;
+    }
+
+    .btn-send {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+    }
+
+    .btn-preview {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-preview:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-clear {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-clear:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+    }
+
+    .btn-disabled {
+      background: #bdc3c7 !important;
+      color: #7f8c8d !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .loading-spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .current-notice-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .current-notice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .current-notice-header h3 {
+      margin: 0;
+      color: #2c3e50;
+      font-size: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .notice-status {
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-active {
+      background: rgba(39, 174, 96, 0.1);
+      color: #27ae60;
+    }
+
+    .status-empty {
+      background: rgba(149, 165, 166, 0.1);
+      color: #95a5a6;
+    }
+
+    .current-notice-content {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #2c3e50;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+    }
+
+    .notice-empty {
+      color: #7f8c8d;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .notice-timestamp {
+      text-align: right;
+      color: #7f8c8d;
+      font-size: 12px;
+      margin-top: 15px;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background: white;
+      margin: 10% auto;
+      padding: 0;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 30px;
+      text-align: center;
+    }
+
+    .modal-body p {
+      margin: 0 0 20px 0;
+      color: #2c3e50;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-confirm {
+      background: #27ae60;
+      color: white;
+    }
+
+    .btn-confirm:hover {
+      background: #229954;
+    }
+
+    .btn-cancel {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: #c0392b;
+    }
+
+    /* Success Animation */
+    .success-animation {
+      animation: successPulse 0.6s ease-out;
+    }
+
+    @keyframes successPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .notice-container {
+        padding: 15px;
+      }
+
+      .notice-form-card {
+        padding: 25px;
+      }
+
+      .notice-actions {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .notice-btn {
+        width: 100%;
+        max-width: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" id="hamburgerMenu">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+  </div>
+
+  <!-- Sidebar Panel -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="breadcrumb">
+        <span>Notice Management</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item">
+        <i class="icon">📊</i>
+        <span><a href="index.html">Dashboard</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💸</i>
+        <span><a href="withdrawal-management.html">Withdrawal Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">💳</i>
+        <span><a href="wallet-management.html">Wallet Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏪</i>
+        <span><a href="main-market-management.html">Main Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🎰</i>
+        <span><a href="gali-disawar-management.html">Gali Disawar Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">⭐</i>
+        <span><a href="starline-management.html">Starline Market Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">🏆</i>
+        <span><a href="bid-report-management.html">Bid Report Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item">
+        <i class="icon">📢</i>
+        <span><a href="users-management.html">Users Management</a></span>
+        <i class="arrow">›</i>
+      </div>
+      <div class="nav-item active">
+        <i class="icon">📋</i>
+        <span><a href="notice-management.html">Notice Management</a></span>
+      </div>
+      <div class="nav-item" onclick="logout()">
+        <i class="icon">🚪</i>
+        <span>Logout</span>
+        <i class="arrow">›</i>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="notice-container">
+    <!-- Header -->
+    <div class="notice-header">
+      <h1>📋 Notice Management</h1>
+      <p>Send important notifications and announcements to all users</p>
+    </div>
+
+    <!-- Current Notice Display -->
+    <div class="current-notice-card">
+      <div class="current-notice-header">
+        <h3>📢 Current Active Notice</h3>
+        <div class="notice-status" id="noticeStatus">
+          <span class="status-empty">No Active Notice</span>
+        </div>
+      </div>
+      <div class="current-notice-content" id="currentNoticeContent">
+        <div class="notice-empty">No notice has been set yet. Create your first notice below.</div>
+      </div>
+      <div class="notice-timestamp" id="noticeTimestamp"></div>
+    </div>
+
+    <!-- Notice Form -->
+    <div class="notice-form-card">
+      <div class="form-section">
+        <h3>✍️ Create New Notice</h3>
+        
+        <div class="form-group">
+          <label class="form-label" for="noticeMessage">
+            Notice Message <span style="color: #e74c3c;">*</span>
+          </label>
+          <textarea 
+            id="noticeMessage" 
+            class="notice-textarea" 
+            placeholder="Enter your notice message here... This message will be sent to all users as a notification."
+            maxlength="500"
+          ></textarea>
+          <div class="char-counter" id="charCounter">0 / 500 characters</div>
+        </div>
+
+        <div class="notice-actions">
+          <button class="notice-btn btn-preview" id="previewBtn">
+            <span>👁️ Preview</span>
+          </button>
+          <button class="notice-btn btn-send" id="sendBtn">
+            <span>📤 Send Notice</span>
+            <div class="loading-spinner" id="loadingSpinner"></div>
+          </button>
+          <button class="notice-btn btn-clear" id="clearBtn">
+            <span>🗑️ Clear</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div id="previewModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>👁️ Notice Preview</h3>
+      </div>
+      <div class="modal-body">
+        <p><strong>This is how your notice will appear to users:</strong></p>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; text-align: left;">
+          <div id="previewText"></div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn btn-confirm" onclick="closePreviewModal()">Got it</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📤 Confirm Notice Sending</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to send this notice to all users?</p>
+        <p><strong>This action cannot be undone.</strong></p>
+        <div class="modal-actions">
+          <button class="modal-btn btn-confirm" id="confirmSendBtn">Yes, Send Notice</button>
+          <button class="modal-btn btn-cancel" onclick="closeConfirmModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">
+        <h3>✅ Notice Sent Successfully!</h3>
+      </div>
+      <div class="modal-body">
+        <p>Your notice has been successfully sent to all users.</p>
+        <p>Users will receive this notification immediately.</p>
+        <div class="modal-actions">
+          <button class="modal-btn btn-confirm" onclick="closeSuccessModal()">Excellent!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script type="module" src="notice-management.js"></script>
+</body>
+</html>

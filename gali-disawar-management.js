@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, query, where, runTransaction, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from './firebase-config.js';
 
 // Initialize Firebase
@@ -213,6 +213,13 @@ async function updateMarketNumber() {
       number: newNumber,
     });
     
+    // Check winning bids after updating the number
+    await checkWinningBidsForGali(currentUpdateMarket.name, newNumber);
+    console.log(`Gali Disawar Market ${currentUpdateMarket.name} updated to number ${newNumber}`);
+    
+    // Store daily results to Firestore
+    await storeDailyResultsToFirestore();
+    
     // Show success message
     alert(`Market number updated successfully to ${newNumber}!`);
     
@@ -222,6 +229,176 @@ async function updateMarketNumber() {
     
     console.log(`Market ${currentUpdateMarket.id} updated to number ${newNumber}`);
   } catch (error) {
+    console.error("Error updating market number:", error);
+    
+    const updateBtn = document.querySelector('.modal-footer .btn-update');
+    updateBtn.disabled = false;
+    updateBtn.textContent = 'Update Number';
+  }
+}
+
+// Function to check winning bids for Gali Disawar after number update
+async function checkWinningBidsForGali(buttonName, resultNumber) {
+  console.log(`🔄 Checking for winning bids in Gali Disawar for button: ${buttonName}, result: ${resultNumber}`);
+  
+  try {
+    // Fetch all pending bids for this button
+    const bidsQuery = query(
+      collection(db, "bids"),
+      where("selectedButton", "==", buttonName),
+      where("status", "==", "Pending")
+    );
+    
+    const bidsSnapshot = await getDocs(bidsQuery);
+    
+    if (bidsSnapshot.empty) {
+      console.log("No pending bids found for this Gali Disawar button");
+      return;
+    }
+    
+    // Parse result number (should be 2 digits for Gali Disawar)
+    if (!resultNumber || resultNumber.length !== 2) {
+      console.log("Invalid result number format for Gali Disawar");
+      return;
+    }
+    
+    const leftDigit = resultNumber[0];
+    const rightDigit = resultNumber[1];
+    
+    console.log(`📌 Processing Gali Disawar result: Left=${leftDigit}, Right=${rightDigit}, Jodi=${resultNumber}`);
+    
+    // Process each bid
+    for (const bidDoc of bidsSnapshot.docs) {
+      const bidData = bidDoc.data();
+      const bidId = bidDoc.id;
+      
+      const bidNumber = bidData.bidNumber || "";
+      const bidAmount = bidData.bidAmount || 0;
+      const userPhone = bidData.userPhone || "";
+      const gameType = bidData.gameType || "";
+      
+      console.log(`Processing Gali bid: ${bidId}, gameType: ${gameType}, bidNumber: ${bidNumber}`);
+      
+      let winningAmount = 0;
+      let isWinner = false;
+      
+      // Check winning conditions based on game type
+      switch (gameType) {
+        case "Left Digit":
+          console.log(`Left digit check: ${bidNumber} vs ${leftDigit}`);
+          if (bidNumber === leftDigit) {
+            winningAmount = bidAmount * 9;
+            isWinner = true;
+          }
+          break;
+          
+        case "Right Digit":
+          console.log(`Right digit check: ${bidNumber} vs ${rightDigit}`);
+          if (bidNumber === rightDigit) {
+            winningAmount = bidAmount * 9;
+            isWinner = true;
+          }
+          break;
+          
+        case "Jodi Digit":
+          console.log(`Jodi digit check: ${bidNumber} vs ${resultNumber}`);
+          if (bidNumber === resultNumber) {
+            winningAmount = bidAmount * 90;
+            isWinner = true;
+          }
+          break;
+      }
+      
+      // Update bid status and user balance if winner
+      if (isWinner) {
+        console.log(`🎉 Gali Winner found: ${bidId}, Amount: ${winningAmount}`);
+        await addWinningAmountToBalanceGali(bidId, userPhone, winningAmount);
+      } else {
+        // Update bid status to "Lose"
+        await updateDoc(doc(db, "bids", bidId), {
+          status: "Lose"
+        });
+        console.log(`❌ Gali bid ${bidId} marked as lose`);
+      }
+    }
+    
+    console.log("✅ Gali Disawar winning bid check completed");
+    
+  } catch (error) {
+    console.error("❌ Error checking Gali Disawar winning bids:", error);
+  }
+}
+
+// Function to add winning amount to user balance for Gali Disawar
+async function addWinningAmountToBalanceGali(bidId, userPhone, winningAmount) {
+  try {
+    const userRef = doc(db, "users", userPhone);
+    const bidRef = doc(db, "bids", bidId);
+
+    await runTransaction(db, async (transaction) => {
+      const userSnapshot = await transaction.get(userRef);
+      const currentBalance = userSnapshot.data()?.balance || 0;
+      const newBalance = currentBalance + winningAmount;
+
+      console.log(`💰 Updating Gali balance: ₹${currentBalance} ➡ ₹${newBalance}`);
+
+      transaction.update(userRef, { balance: newBalance });
+      transaction.update(bidRef, { 
+        winningAmount: winningAmount,
+        status: "Win"
+      });
+    });
+
+    console.log(`✅ Gali winning balance updated for ${userPhone}: +₹${winningAmount}`);
+    
+  } catch (error) {
+    console.error("❌ Error updating Gali winning balance:", error);
+  }
+}
+
+// Function to store daily results to Firestore
+async function storeDailyResultsToFirestore() {
+  console.log("📦 Starting daily results storage for Gali Disawar...");
+  
+  try {
+    // Get current date in dd-MM-yyyy format
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    const dateString = `${day}-${month}-${year}`;
+    
+    // Fetch all documents from button_gali collection
+    const buttonsCollection = collection(db, "button_gali");
+    const querySnapshot = await getDocs(buttonsCollection);
+    
+    const resultMap = {};
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const name = data.name || doc.id; // fallback to doc ID if name is missing
+      const number = data.number;
+      
+      if (number && number !== "N/A" && number !== undefined) {
+        resultMap[name] = number;
+      }
+    });
+    
+    console.log(`📦 Final resultMap for ${dateString}:`, resultMap);
+    
+    if (Object.keys(resultMap).length === 0) {
+      console.warn("⚠️ No button data to upload. Check Firestore 'button_gali' collection.");
+      return;
+    }
+    
+    // Store results to dailyResultsGali collection - this will completely replace the document
+    const dailyResultDoc = doc(db, "dailyResultsGali", dateString);
+    await setDoc(dailyResultDoc, resultMap, { merge: false });
+    
+    console.log(`✅ Gali Disawar results saved for ${dateString}`);
+    
+  } catch (error) {
+    console.error("❌ Failed to save daily Gali results:", error);
   }
 }
 
