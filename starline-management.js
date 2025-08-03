@@ -468,6 +468,50 @@ window.onclick = function(event) {
   }
 }
 
+// Function to clear all numbers at once
+async function clearAllNumbers() {
+  const confirmed = confirm("Are you sure you want to clear all numbers in all Starline markets? This action cannot be undone.");
+  
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    // Show loading state
+    const clearBtn = document.querySelector('.clear-all-btn');
+    const originalText = clearBtn.innerHTML;
+    clearBtn.innerHTML = '⏳ Clearing...';
+    clearBtn.disabled = true;
+
+    const buttonsCollection = collection(db, "button_play");
+    const querySnapshot = await getDocs(buttonsCollection);
+    
+    const updatePromises = [];
+    
+    querySnapshot.forEach((doc) => {
+      const buttonRef = doc.ref;
+      updatePromises.push(updateDoc(buttonRef, { number: "" }));
+    });
+    
+    await Promise.all(updatePromises);
+    
+    alert(`Successfully cleared numbers for ${updatePromises.length} Starline markets!`);
+    
+    // Refresh the markets display
+    fetchStarlineMarkets();
+    
+    console.log("All Starline market numbers cleared successfully");
+  } catch (error) {
+    console.error("Error clearing all numbers:", error);
+    alert("Error clearing numbers. Please try again.");
+  } finally {
+    // Reset button state
+    const clearBtn = document.querySelector('.clear-all-btn');
+    clearBtn.innerHTML = '🗑️ Clear All Numbers';
+    clearBtn.disabled = false;
+  }
+}
+
 // Make functions globally available
 window.fetchStarlineMarkets = fetchStarlineMarkets;
 window.openUpdateModal = openUpdateModal;
@@ -475,6 +519,7 @@ window.closeUpdateModal = closeUpdateModal;
 window.updateMarketNumber = updateMarketNumber;
 window.searchMarkets = searchMarkets;
 window.clearSearch = clearSearch;
+window.clearAllNumbers = clearAllNumbers;
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {

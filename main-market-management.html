@@ -129,7 +129,10 @@
     <section class="markets-section">
       <div class="section-header">
         <h2>Main Markets</h2>
-        <button class="refresh-btn" onclick="fetchMainMarkets()">🔄 Refresh</button>
+        <div class="header-actions">
+          <button class="clear-all-btn" onclick="clearAllNumbers()">🗑️ Clear All Numbers</button>
+          <button class="refresh-btn" onclick="fetchMainMarkets()">🔄 Refresh</button>
+        </div>
       </div>
       
       <div class="markets-container" id="marketsContainer">

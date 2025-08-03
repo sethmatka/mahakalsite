@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs, doc, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs, doc, updateDoc, orderBy, getDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from './firebase-config.js';
 
 // Initialize Firebase
@@ -123,15 +123,119 @@ async function updateRequestStatus(requestId, newStatus) {
       btn.style.opacity = '0.6';
     });
 
-    // Update the document in Firestore
+    // Get the request data first to access userId and amount
     const requestRef = doc(db, "withdrawal_requests", requestId);
-    await updateDoc(requestRef, {
+    const requestDoc = await getDoc(requestRef);
+    
+    if (!requestDoc.exists()) {
+      throw new Error("Request document not found");
+    }
+    
+    const requestData = requestDoc.data();
+    const userId = requestData.userId;
+    const amount = requestData.amount;
+
+    // Prepare update data
+    const updateData = {
       status: newStatus,
       updatedAt: new Date().getTime()
-    });
+    };
+
+    // Add approvedOn field and deduct user balance if status is Approved
+    if (newStatus === 'Approved') {
+      const now = new Date();
+      const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Kolkata',
+        timeZoneName: 'short'
+      };
+      const formattedDate = now.toLocaleString('en-US', options).replace('IST', 'UTC+5:30');
+      updateData.approvedOn = formattedDate;
+
+      // Deduct amount from user's balance in the users collection
+      try {
+        const userRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+          const currentBalance = userDoc.data().balance || 0;
+          
+          // Check if user has sufficient balance
+          if (currentBalance >= amount) {
+            // Deduct balance using negative increment to avoid race conditions
+            await updateDoc(userRef, {
+              balance: increment(-amount)
+            });
+            console.log(`Deducted ₹${amount} from user ${userId}'s balance`);
+          } else {
+            // Insufficient balance - ask admin if they want to proceed
+            const continueApproval = confirm(
+              `User ${userId} has insufficient balance!\n\nCurrent Balance: ₹${currentBalance}\nWithdrawal Amount: ₹${amount}\n\nDo you want to proceed with approval anyway? This will result in negative balance.`
+            );
+            
+            if (!continueApproval) {
+              // Re-enable buttons and return early
+              buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+              });
+              return;
+            } else {
+              // Proceed with deduction even if it results in negative balance
+              await updateDoc(userRef, {
+                balance: increment(-amount)
+              });
+              console.log(`Deducted ₹${amount} from user ${userId}'s balance (resulted in negative balance)`);
+            }
+          }
+        } else {
+          console.warn(`User document not found for userId: ${userId}`);
+          // Ask admin if they want to continue without balance deduction
+          const continueApproval = confirm(
+            `User document not found for userId: ${userId}\n\nDo you want to continue with request approval without balance deduction?`
+          );
+          
+          if (!continueApproval) {
+            // Re-enable buttons and return early
+            buttons.forEach(btn => {
+              btn.disabled = false;
+              btn.style.opacity = '1';
+            });
+            return;
+          }
+        }
+      } catch (balanceError) {
+        console.error("Error updating user balance:", balanceError);
+        // Ask if they want to continue with approval despite balance update failure
+        const continueApproval = confirm(
+          `Failed to update user balance. Do you want to continue with request approval?\n\nError: ${balanceError.message}`
+        );
+        if (!continueApproval) {
+          // Re-enable buttons and return early
+          buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+          });
+          return;
+        }
+      }
+    }
+
+    // Update the document in Firestore
+    await updateDoc(requestRef, updateData);
     
     // Show success message
-    alert(`Request ${newStatus.toLowerCase()} successfully!`);
+    if (newStatus === 'Approved') {
+      alert(`Withdrawal request approved successfully! ₹${amount} has been deducted from user ${userId}'s balance.`);
+    } else {
+      alert(`Request ${newStatus.toLowerCase()} successfully!`);
+    }
     
     // Refresh the list
     fetchWithdrawalRequests();
@@ -139,7 +243,7 @@ async function updateRequestStatus(requestId, newStatus) {
     console.log(`Request ${requestId} updated to ${newStatus}`);
   } catch (error) {
     console.error("Error updating request status:", error);
-    alert("Error updating request. Please try again.");
+    alert(`Error updating request: ${error.message}. Please try again.`);
     
     // Re-enable buttons on error
     const buttons = document.querySelectorAll(`[onclick*="${requestId}"]`);
